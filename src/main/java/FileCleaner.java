@@ -9,12 +9,36 @@ public class FileCleaner {
     public FileCleaner(String fileName, List<String> phrases) {
         _fileName = fileName;
         _phrases = phrases;
-
-        cleanFileName();
     }
 
     public String getCleanFileName() {
+        cleanFileName();
         return _fileName;
+    }
+
+    public String getSeriesName() {
+        List<String> listFileName = getFileExtension();
+
+        _fileName = listFileName.get(0);
+        String ext = listFileName.get(1);
+
+        if (!validFileExtension(ext)) {
+            return "";
+        }
+
+        listFileName = Arrays.asList(_fileName.split("[ .]"));
+        List<String> fileNameCleaned = new ArrayList<>();
+
+        for (String word : listFileName) {
+            if (word.length() == 6) {
+                if (identifyEpisodeString(word)) {
+                    break;
+                }
+            }
+            fileNameCleaned.add(capitalize(word));
+        }
+
+        return String.join(" ", fileNameCleaned);
     }
 
     private void cleanFileName() {
@@ -23,12 +47,16 @@ public class FileCleaner {
         _fileName = listFileName.get(0);
         String ext = listFileName.get(1);
 
-        if (ext.equals(".jar")) {
+        if (validFileExtension(ext)) {
             _fileName += ext;
             return;
         }
 
         _fileName = removePhrases() + ext;
+    }
+
+    private boolean validFileExtension(String ext) {
+        return ext.equals(".jar") || ext.equals(".txt") || ext.equals(".nfo");
     }
 
     /**

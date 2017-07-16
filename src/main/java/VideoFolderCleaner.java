@@ -27,7 +27,8 @@ public class VideoFolderCleaner {
 
         System.out.printf("Welcome to Video Folder Cleaner!\n\nPlease select a task below:\n" +
                 "  [1] Clean File Names\n" +
-                "  [2] List Files in Directory\n" +
+                "  [2] Sort Files into Folders\n" +
+                "  [3] List Files in Directory\n" +
                 "Enter task number: ");
 
         Input input = new Input();
@@ -39,6 +40,9 @@ public class VideoFolderCleaner {
                 task = new TaskCleanFileName();
                 break;
             case "2":
+                task = new SortFilesIntoFolders();
+                break;
+            case "3":
                 task = new ListFilesInDirectory();
                 break;
             default:

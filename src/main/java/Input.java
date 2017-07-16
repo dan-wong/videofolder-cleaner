@@ -44,12 +44,7 @@ public class Input {
     }
 
     public boolean validTaskInput(String input) {
-        switch (input) {
-            case "1":
-            case "2":
-                return true;
-            default:
-                return false;
-        }
+        int choice = Integer.valueOf(input);
+        return choice > 0 && choice < 4;
     }
 }
