@@ -32,7 +32,7 @@ public class FileCleaner {
     }
 
     private String removePhrases() {
-        List<String> listFileName = Arrays.asList(_fileName.split("\\.\\s+"));
+        List<String> listFileName = Arrays.asList(_fileName.split("[ .]"));
         List<String> fileNameCleaned = new ArrayList<>();
 
         for (String word : listFileName) {
@@ -51,8 +51,8 @@ public class FileCleaner {
     private boolean identifyEpisodeString(String word) {
         String wordUppercase = word.toUpperCase();
         if (wordUppercase.contains("S") && wordUppercase.contains("E")) {
-            String season = wordUppercase.substring(0, 3);
-            String episode = wordUppercase.substring(4);
+            String season = wordUppercase.substring(0, 2);
+            String episode = wordUppercase.substring(3);
 
             if (season.substring(1).matches(".*\\d+.*") && episode.substring(1).matches(".*\\d+.*")) {
                 return true;
