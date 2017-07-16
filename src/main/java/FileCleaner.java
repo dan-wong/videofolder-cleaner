@@ -32,16 +32,47 @@ public class FileCleaner {
     }
 
     private String removePhrases() {
-        List<String> listFileName = Arrays.asList(_fileName.split("\\."));
+        List<String> listFileName = Arrays.asList(_fileName.split("\\.\\s+"));
         List<String> fileNameCleaned = new ArrayList<>();
 
         for (String word : listFileName) {
             if (!_phrases.contains(word.toUpperCase())) {
+                if (word.length() == 6) {
+                    word = formatEpisodeString(word);
+                }
+
                 fileNameCleaned.add(capitalize(word));
             }
         }
 
         return String.join(" ", fileNameCleaned);
+    }
+
+    private boolean identifyEpisodeString(String word) {
+        String wordUppercase = word.toUpperCase();
+        if (wordUppercase.contains("S") && wordUppercase.contains("E")) {
+            String season = wordUppercase.substring(0, 3);
+            String episode = wordUppercase.substring(4);
+
+            if (season.substring(1).matches(".*\\d+.*") && episode.substring(1).matches(".*\\d+.*")) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String formatEpisodeString(String word) {
+        String wordUppercase = word.toUpperCase();
+        if (wordUppercase.contains("S") && wordUppercase.contains("E")) {
+            String season = wordUppercase.substring(0, 3);
+            String episode = wordUppercase.substring(4);
+
+            if (season.substring(1).matches(".*\\d+.*") && episode.substring(1).matches(".*\\d+.*")) {
+                return season.toUpperCase() + episode.toUpperCase();
+            }
+        }
+
+        return word;
     }
 
     private String capitalize(String word) {

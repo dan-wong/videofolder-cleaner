@@ -38,4 +38,14 @@ public class Input {
         }
         return false;
     }
+
+    public boolean validTaskInput(String input) {
+        switch (input) {
+            case "1":
+            case "2":
+                return true;
+            default:
+                return false;
+        }
+    }
 }

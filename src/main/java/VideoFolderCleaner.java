@@ -1,4 +1,7 @@
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -6,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class Main {
+public class VideoFolderCleaner {
     private final static String NAME_OF_JAR = "videofoldercleaner-1.0-SNAPSHOT.jar";
     private static String NAME_OF_PHRASES_FILE;
     private static String _filePath;
@@ -22,12 +25,29 @@ public class Main {
                 _phrases = getPhrases(args[0]);
             }
         } catch (ArrayIndexOutOfBoundsException e) {
-            e.printStackTrace();
+            System.out.println("Please enter a filename for phrases to omit. java -jar videofoldercleaner.jar phrases.txt");
             return;
         }
 
-        System.out.println(_filePath);
-        taskCleanFileName();
+        System.out.printf("Welcome to Video Folder Cleaner!\n\nPlease select a task below:\n" +
+                "  [1] Clean File Names\n\n" +
+                "Enter task number: ");
+
+        String inputLine = _input.getInput();
+        while (!_input.validTaskInput(inputLine)) {
+            System.out.println("Invalid task option. Please try again.");
+            inputLine = _input.getInput();
+        }
+
+        Task task = null;
+        switch (inputLine) {
+            case "1":
+                task = new TaskCleanFileName();
+                break;
+            default:
+                return;
+        }
+        task.execute();
     }
 
     private static List<String> getPhrases(String arg) throws IOException {
@@ -45,22 +65,6 @@ public class Main {
         return phrases;
     }
 
-    private static void taskCleanFileName() throws IOException {
-        System.out.printf("Task: Clean file name.\nAre you sure you want to continue? [Y/N] ");
-        if (_input.getYesNo()) {
-            Files.walk(Paths.get(_filePath))
-                    .filter(Files::isRegularFile)
-                    .filter(f -> !f.getFileName().toString().equals(NAME_OF_PHRASES_FILE) && !f.getFileName().toString().equals(NAME_OF_JAR))
-                    .forEach(f -> {
-                        String fileName = f.getFileName().toString();
-                        FileCleaner fileCleaner = new FileCleaner(fileName, _phrases);
-                        f.toFile().renameTo(new File(_filePath + "/" + fileCleaner.getCleanFileName()));
-                    });
-        } else {
-            System.out.println("Task aborted.");
-        }
-    }
-
     private static void listFilesForFolder() throws IOException {
         Files.walk(Paths.get(_filePath))
                 .filter(Files::isRegularFile)
@@ -74,7 +78,7 @@ public class Main {
      * @return decodedPath
      */
     private static String getCurrentLocation() {
-        String path = Main.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        String path = VideoFolderCleaner.class.getProtectionDomain().getCodeSource().getLocation().getPath();
         String decodedPath = "";
         try {
             decodedPath = URLDecoder.decode(path, "UTF-8");
@@ -87,5 +91,21 @@ public class Main {
         decodedPath = decodedPath.substring(0, finalIndex);
 
         return decodedPath;
+    }
+
+    public static String getNameOfJar() {
+        return NAME_OF_JAR;
+    }
+
+    public static String getNameOfPhrasesFile() {
+        return NAME_OF_PHRASES_FILE;
+    }
+
+    public static String getFilePath() {
+        return _filePath;
+    }
+
+    public static List<String> getPhrases() {
+        return _phrases;
     }
 }
