@@ -8,13 +8,23 @@ import java.util.List;
 
 public class Main {
     private final static String NAME_OF_JAR = "videofoldercleaner-1.0-SNAPSHOT.jar";
+    private static String NAME_OF_PHRASES_FILE;
     private static String _filePath;
     private static Input _input = new Input();
-    private static List<String> _phrases;
+    private static List<String> _phrases = new ArrayList<>();
 
     public static void main(String args[]) throws IOException {
         _filePath = getCurrentLocation();
-        _phrases = getPhrases(args[0]);
+
+        try {
+            NAME_OF_PHRASES_FILE = args[0];
+            if (NAME_OF_PHRASES_FILE.length() > 0) {
+                _phrases = getPhrases(args[0]);
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            e.printStackTrace();
+            return;
+        }
 
         System.out.println(_filePath);
         taskCleanFileName();
@@ -26,8 +36,10 @@ public class Main {
 
         List<String> phrases = new ArrayList<>();
 
-        while (reader.readLine() != null) {
-            _phrases.addAll(Arrays.asList(reader.readLine().split(",")));
+        String line = reader.readLine();
+        while (line != null) {
+            phrases.addAll(Arrays.asList(line.toUpperCase().split(",")));
+            line = reader.readLine();
         }
 
         return phrases;
@@ -38,9 +50,10 @@ public class Main {
         if (_input.getYesNo()) {
             Files.walk(Paths.get(_filePath))
                     .filter(Files::isRegularFile)
+                    .filter(f -> !f.getFileName().toString().equals(NAME_OF_PHRASES_FILE) && !f.getFileName().toString().equals(NAME_OF_JAR))
                     .forEach(f -> {
                         String fileName = f.getFileName().toString();
-                        FileCleaner fileCleaner = new FileCleaner(fileName);
+                        FileCleaner fileCleaner = new FileCleaner(fileName, _phrases);
                         f.toFile().renameTo(new File(_filePath + "/" + fileCleaner.getCleanFileName()));
                     });
         } else {

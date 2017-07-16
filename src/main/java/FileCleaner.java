@@ -4,9 +4,11 @@ import java.util.List;
 
 public class FileCleaner {
     private String _fileName;
+    private List<String> _phrases;
 
-    public FileCleaner(String fileName) {
+    public FileCleaner(String fileName, List<String> phrases) {
         _fileName = fileName;
+        _phrases = phrases;
 
         cleanFileName();
     }
@@ -21,12 +23,32 @@ public class FileCleaner {
         _fileName = listFileName.get(0);
         String ext = listFileName.get(1);
 
-        _fileName = replaceDotsWithSpaces() + ext;
+        if (ext.equals(".jar")) {
+            _fileName += ext;
+            return;
+        }
+
+        _fileName = removePhrases() + ext;
     }
 
     private String removePhrases() {
-        List<String> listFileName = Arrays.asList(_fileName.split(" "));
-        return "";
+        List<String> listFileName = Arrays.asList(_fileName.split("\\."));
+        List<String> fileNameCleaned = new ArrayList<>();
+
+        for (String word : listFileName) {
+            if (!_phrases.contains(word.toUpperCase())) {
+                fileNameCleaned.add(capitalize(word));
+            }
+        }
+
+        return String.join(" ", fileNameCleaned);
+    }
+
+    private String capitalize(String word) {
+        String firstLetter = word.substring(0, 1);
+        String restOfWord = word.substring(1);
+
+        return firstLetter.toUpperCase() + restOfWord.toLowerCase();
     }
 
     /**
@@ -40,9 +62,5 @@ public class FileCleaner {
         listFileName.add(_fileName.substring(_fileName.length() - 4));
 
         return listFileName;
-    }
-
-    private String replaceDotsWithSpaces() {
-        return _fileName.replaceAll("\\.", " ");
     }
 }
