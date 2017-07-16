@@ -14,6 +14,10 @@ public class Input {
 
         try {
             line = _input.readLine();
+            while (!validTaskInput(line)) {
+                System.out.println("Invalid task option. Please try again.");
+                line = getInput();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

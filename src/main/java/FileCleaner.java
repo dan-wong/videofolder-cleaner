@@ -31,16 +31,34 @@ public class FileCleaner {
         _fileName = removePhrases() + ext;
     }
 
+    /**
+     * Tidies up the file name using one of two methods.
+     * If a phrase list has been supplied, remove phrases contained in the list
+     * If not, remove everything after the episode string
+     *
+     * @return
+     */
     private String removePhrases() {
         List<String> listFileName = Arrays.asList(_fileName.split("[ .]"));
         List<String> fileNameCleaned = new ArrayList<>();
 
-        for (String word : listFileName) {
-            if (!_phrases.contains(word.toUpperCase())) {
-                if (word.length() == 6) {
-                    word = formatEpisodeString(word);
+        if (_phrases != null) {
+            for (String word : listFileName) {
+                if (!_phrases.contains(word.toUpperCase())) {
+                    if (word.length() == 6) {
+                        word = formatEpisodeString(word);
+                    }
+                    fileNameCleaned.add(capitalize(word));
                 }
-
+            }
+        } else {
+            for (String word : listFileName) {
+                if (word.length() == 6) {
+                    if (identifyEpisodeString(word)) {
+                        fileNameCleaned.add(formatEpisodeString(word));
+                        break;
+                    }
+                }
                 fileNameCleaned.add(capitalize(word));
             }
         }
@@ -48,10 +66,15 @@ public class FileCleaner {
         return String.join(" ", fileNameCleaned);
     }
 
+    /**
+     * Verify a word is a episode string (S01E01)
+     * @param word
+     * @return
+     */
     private boolean identifyEpisodeString(String word) {
         String wordUppercase = word.toUpperCase();
         if (wordUppercase.contains("S") && wordUppercase.contains("E")) {
-            String season = wordUppercase.substring(0, 2);
+            String season = wordUppercase.substring(0, 3);
             String episode = wordUppercase.substring(3);
 
             if (season.substring(1).matches(".*\\d+.*") && episode.substring(1).matches(".*\\d+.*")) {
@@ -61,20 +84,26 @@ public class FileCleaner {
         return false;
     }
 
+    /**
+     * Format episode string to S01E01
+     * @param word
+     * @return
+     */
     private String formatEpisodeString(String word) {
-        String wordUppercase = word.toUpperCase();
-        if (wordUppercase.contains("S") && wordUppercase.contains("E")) {
-            String season = wordUppercase.substring(0, 3);
-            String episode = wordUppercase.substring(4);
-
-            if (season.substring(1).matches(".*\\d+.*") && episode.substring(1).matches(".*\\d+.*")) {
-                return season.toUpperCase() + episode.toUpperCase();
-            }
+        if (identifyEpisodeString(word)) {
+            String season = word.substring(0, 3);
+            String episode = word.substring(3, 6);
+            return "- " + season.toUpperCase() + episode.toUpperCase();
         }
 
         return word;
     }
 
+    /**
+     * Capitalize the first letter of the supplied word
+     * @param word
+     * @return capitalized word
+     */
     private String capitalize(String word) {
         String firstLetter = word.substring(0, 1);
         String restOfWord = word.substring(1);

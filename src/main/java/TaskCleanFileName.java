@@ -3,9 +3,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-/**
- * Created by Daniel on 16/07/2017.
- */
+
 public class TaskCleanFileName implements Task {
     private Input _input = new Input();
 
