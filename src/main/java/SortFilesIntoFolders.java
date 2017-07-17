@@ -17,7 +17,7 @@ public class SortFilesIntoFolders implements Task {
         files.stream()
                 .filter(f -> !f.isDirectory())
                 .forEach(f -> {
-                    FileCleaner fc = new FileCleaner(f.getName(), null);
+                    FileCleaner fc = new FileCleaner(f.getName());
                     String seriesName = fc.getSeriesName();
                     if (seriesName != "") {
                         if (!folders.contains(seriesName)) {

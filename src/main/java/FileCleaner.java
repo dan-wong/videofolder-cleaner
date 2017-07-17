@@ -4,94 +4,48 @@ import java.util.List;
 
 public class FileCleaner {
     private String _fileName;
-    private List<String> _phrases;
+    private Episode _episode;
 
-    public FileCleaner(String fileName, List<String> phrases) {
+    public FileCleaner(String fileName) {
         _fileName = fileName;
-        _phrases = phrases;
+
+        generateEpisode();
     }
 
     public String getCleanFileName() {
-        cleanFileName();
-        return _fileName;
+        return _episode.getCleanFileName();
     }
 
     public String getSeriesName() {
-        List<String> listFileName = getFileExtension();
-
-        _fileName = listFileName.get(0);
-        String ext = listFileName.get(1);
-
-        if (invalidFileExtension(ext)) {
-            return "";
-        }
-
-        listFileName = Arrays.asList(_fileName.split("[ .]"));
-        List<String> fileNameCleaned = new ArrayList<>();
-
-        for (String word : listFileName) {
-            if (word.length() == 6) {
-                if (identifyEpisodeString(word)) {
-                    break;
-                }
-            }
-            fileNameCleaned.add(capitalize(word));
-        }
-
-        return String.join(" ", fileNameCleaned);
+        return _episode.getSeriesName();
     }
 
-    private void cleanFileName() {
-        List<String> listFileName = getFileExtension();
-
-        _fileName = listFileName.get(0);
+    private void generateEpisode() {
+        List<String> listFileName = splitNameAndExtension();
         String ext = listFileName.get(1);
 
         if (invalidFileExtension(ext)) {
-            _fileName += ext;
+            _episode = new Episode(_fileName, "", "");
             return;
         }
 
-        _fileName = removePhrases() + ext;
+        List<String> seriesName = new ArrayList<>();
+        String episodeNumber = "";
+
+        List<String> episodeNameList = Arrays.asList(listFileName.get(0).split("[ .]"));
+        for (String word : episodeNameList) {
+            if (word.length() == 6 && identifyEpisodeString(word)) {
+                episodeNumber = formatEpisodeString(word);
+                break;
+            }
+            seriesName.add(capitalize(word));
+        }
+
+        _episode = new Episode(String.join(" ", seriesName), episodeNumber, ext);
     }
 
     private boolean invalidFileExtension(String ext) {
         return ext.equals(".jar") || ext.equals(".txt") || ext.equals(".nfo");
-    }
-
-    /**
-     * Tidies up the file name using one of two methods.
-     * If a phrase list has been supplied, remove phrases contained in the list
-     * If not, remove everything after the episode string
-     *
-     * @return
-     */
-    private String removePhrases() {
-        List<String> listFileName = Arrays.asList(_fileName.split("[ .]"));
-        List<String> fileNameCleaned = new ArrayList<>();
-
-        if (_phrases != null) {
-            for (String word : listFileName) {
-                if (!_phrases.contains(word.toUpperCase())) {
-                    if (word.length() == 6) {
-                        word = formatEpisodeString(word);
-                    }
-                    fileNameCleaned.add(capitalize(word));
-                }
-            }
-        } else {
-            for (String word : listFileName) {
-                if (word.length() == 6) {
-                    if (identifyEpisodeString(word)) {
-                        fileNameCleaned.add(formatEpisodeString(word));
-                        break;
-                    }
-                }
-                fileNameCleaned.add(capitalize(word));
-            }
-        }
-
-        return String.join(" ", fileNameCleaned);
     }
 
     /**
@@ -121,7 +75,7 @@ public class FileCleaner {
         if (identifyEpisodeString(word)) {
             String season = word.substring(0, 3);
             String episode = word.substring(3, 6);
-            return "- " + season.toUpperCase() + episode.toUpperCase();
+            return season.toUpperCase() + episode.toUpperCase();
         }
 
         return word;
@@ -144,7 +98,7 @@ public class FileCleaner {
      *
      * @return listFileName
      */
-    private List<String> getFileExtension() {
+    private List<String> splitNameAndExtension() {
         List<String> listFileName = new ArrayList<>();
         listFileName.add(_fileName.substring(0, _fileName.length() - 4));
         listFileName.add(_fileName.substring(_fileName.length() - 4));

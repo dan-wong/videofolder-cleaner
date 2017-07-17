@@ -16,8 +16,12 @@ public class TaskCleanFileName implements Task {
                     .filter(f -> !f.getFileName().toString().equals(VideoFolderCleaner.getNameOfPhrasesFile()) && !f.getFileName().toString().equals(VideoFolderCleaner.getNameOfJar()))
                     .forEach(f -> {
                         String fileName = f.getFileName().toString();
-                        FileCleaner fileCleaner = new FileCleaner(fileName, VideoFolderCleaner.getPhrases());
-                        f.toFile().renameTo(new File(VideoFolderCleaner.getFilePath() + "/" + fileCleaner.getCleanFileName()));
+                        FileCleaner fileCleaner = new FileCleaner(fileName);
+
+                        String path = f.toAbsolutePath().toString();
+                        path = path.substring(0, path.length() - (f.getFileName().toString().length()));
+                        System.out.println(path);
+                        f.toFile().renameTo(new File(path + fileCleaner.getCleanFileName()));
                     });
 
             System.out.println("Task Successfully Executed");
