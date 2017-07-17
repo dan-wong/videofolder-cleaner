@@ -22,7 +22,7 @@ public class FileCleaner {
         _fileName = listFileName.get(0);
         String ext = listFileName.get(1);
 
-        if (!validFileExtension(ext)) {
+        if (invalidFileExtension(ext)) {
             return "";
         }
 
@@ -47,7 +47,7 @@ public class FileCleaner {
         _fileName = listFileName.get(0);
         String ext = listFileName.get(1);
 
-        if (validFileExtension(ext)) {
+        if (invalidFileExtension(ext)) {
             _fileName += ext;
             return;
         }
@@ -55,7 +55,7 @@ public class FileCleaner {
         _fileName = removePhrases() + ext;
     }
 
-    private boolean validFileExtension(String ext) {
+    private boolean invalidFileExtension(String ext) {
         return ext.equals(".jar") || ext.equals(".txt") || ext.equals(".nfo");
     }
 
